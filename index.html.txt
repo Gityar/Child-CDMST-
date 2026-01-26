@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinySteps - Developmental Milestones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+            --accent-color: #1abc9c;
+            --bg-color: #fdfbf1;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans Ethiopic', sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        header {
+            background: var(--primary-gradient);
+            padding: 50px 20px 80px;
+            text-align: center;
+            color: white;
+        }
+
+        header h1 { font-size: 2.8rem; margin: 0; }
+        header p { opacity: 0.9; margin-top: 5px; }
+
+        .container {
+            max-width: 750px;
+            margin: -50px auto 50px;
+            padding: 0 15px;
+        }
+
+        .input-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .lang-switch {
+            background: #eee;
+            border-radius: 30px;
+            display: inline-flex;
+            padding: 4px;
+            margin-bottom: 25px;
+        }
+
+        .lang-btn {
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            background: transparent;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: var(--accent-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            font-size: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            margin: 15px 0;
+            outline-color: var(--accent-color);
+            box-sizing: border-box;
+        }
+
+        .submit-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover { background: #16a085; }
+
+        #results { margin-top: 30px; display: none; }
+
+        .milestone-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .domain-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            text-align: left;
+        }
+
+        .domain-name {
+            font-weight: 700;
+            color: #3bb2b8;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .counseling-box {
+            background: #fff9e6;
+            border: 1px dashed #f1c40f;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .counseling-box h3 { margin-top: 0; color: #d68910; }
+        
+        .age-badge {
+            background: #3bb2b8;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 id="app-title">TinySteps</h1>
+    <p id="app-subtitle">Child Development Tracker <br> by Yaregal S.</p>
+</header>
+
+<div class="container">
+    <div class="input-card">
+        <div class="lang-switch">
+            <button class="lang-btn active" id="en-btn" onclick="setLanguage('en')">English</button>
+            <button class="lang-btn" id="am-btn" onclick="setLanguage('am')">አማርኛ</button>
+        </div>
+        
+        <h3 id="input-prompt">Enter Child's Age (Months)</h3>
+        <input type="number" id="ageInput" placeholder="0 - 59" min="0" max="59">
+        <button class="submit-btn" onclick="showMilestones()" id="btn-text">Check Milestones</button>
+    </div>
+
+    <div id="results">
+        <div class="age-badge" id="age-display"></div>
+        <h2 id="result-title">Developmental Status</h2>
+        <div class="milestone-grid" id="milestone-content"></div>
+        <div class="counseling-box" id="counseling-content"></div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en';
+
+    const uiText = {
+        en: {
+            title: "TinySteps",
+            subtitle: "Expert-guided developmental milestones",
+            prompt: "Enter Child's Age (Months)",
+            btn: "Check Milestones",
+            res: "Developmental Status",
+            tips: "Counseling & Tips",
+            ageText: "Age: ",
+            months: " months",
+            domains: ["Gross Motor", "Fine Motor", "Language/Communication", "Social/Personal", "Problem Solving"]
+        },
+        am: {
+            title: "ታይኒ ስቴፕስ (TinySteps)",
+            subtitle: "የልጅዎን የእድገት ደረጃ መከታተያ በ ያረጋል ሰማነው",
+            prompt: "የልጁን እድሜ ያስገቡ (በወራት)",
+            btn: "የእድገት ደረጃን ይመልከቱ",
+            res: "የእድገት ውጤት",
+            tips: "ምክር እና ጠቃሚ መረጃዎች",
+            ageText: "እድሜ: ",
+            months: " ወር",
+            domains: ["አጠቃላይ እንቅስቃሴ (Gross Motor)", "ጥቃቅን እንቅስቃሴ (Fine Motor)", "ቋንቋ እና ተግባቦት", "ማህበራዊ እና ግላዊ", "ችግር የመፍታት ብቃት"]
+        }
+    };
+
+    const milestoneData = [
+        {
+            age: 2,
+            en: ["Holds head up when on tummy", "Opens hands briefly", "Makes cooing sounds", "Calms when spoken to/picked up", "Watches faces"],
+            am: ["በሆዱ ሲተኛ ጭንቅላቱን ያነሳል", "እጆቹን ለጥቂት ጊዜ ይከፍታል", "የኩኩ ድምፅ ያወጣል", "ሲያናግሩት ወይም ሲያቅፉት ይረጋጋል", "ፊቶችን ይመለከታል"],
+            tips: { en: "Talk to your baby in a high-pitched voice. Provide tummy time.", am: "ከልጅዎ ጋር በቀጭን ድምፅ ያውሩ። በሆዱ እንዲተኛ ያድርጉት።" }
+        },
+        {
+            age: 6,
+            en: ["Rolls from tummy to back", "Reaches for toys", "Makes squealing sounds", "Knows familiar people", "Puts things in mouth"],
+            am: ["ከሆዱ ወደ ጀርባው ይገላበጣል", "አሻንጉሊቶችን ለመያዝ ይሞክራል", "የደስታ ድምፅ ያወጣል", "የሚያውቃቸውን ሰዎች ይለያል", "ነገሮችን ወደ አፉ ይከታል"],
+            tips: { en: "Place toys slightly out of reach to encourage rolling/movement.", am: "እንዲንቀሳቀስ ለማበረታታት አሻንጉሊቶችን ጥቂት ራቅ አድርገው ያስቀምጡ።" }
+        },
+        {
+            age: 12,
+            en: ["Pulls up to stand", "Picks up small items with thumb and finger", "Says 'mama' or 'dada'", "Plays games like 'pat-a-cake'", "Puts things in containers"],
+            am: ["ቆሞ ለመቆየት ይሞክራል", "ጥቃቅን ነገሮችን በአውራ ጣትና በሌባ ጣቱ ይለቅማል", "ማማ ወይም ባባ ይላል", "እንደ ጭብጨባ ያሉ ጨዋታዎችን ይጫወታል", "ነገሮችን ወደ ዕቃ ውስጥ ይከታል"],
+            tips: { en: "Encourage walking by holding hands. Read picture books together.", am: "እጁን ይዘው እንዲራመድ ያበረታቱት። የስዕል መጻሕፍትን አብረው ያንብቡ።" }
+        },
+        {
+            age: 24,
+            en: ["Kicks a ball", "Stacks 4-6 blocks", "Speaks in 2-word sentences", "Plays with others", "Uses a spoon and fork"],
+            am: ["ኳስ ይረግጣል", "ከ4-6 ኩቦችን ይደረድራል", "ባለ ሁለት ቃል ዓረፍተ ነገሮችን ይናገራል", "ከሌሎች ጋር ይጫወታል", "ማንኪያና ሹካ መጠቀም ይጀምራል"],
+            tips: { en: "Give simple 2-step instructions like 'Pick up the toy and put it in the box'.", am: "እንደ 'አሻንጉሊቱን አንስተህ ሳጥኑ ውስጥ ክከተው' ያሉ ባለ ሁለት ደረጃ ትዕዛዞችን ይስጡ።" }
+        },
+        {
+            age: 36,
+            en: ["Climps well", "Strings large beads together", "Asks 'Who, What, Where' questions", "Shows affection for friends", "Can work toys with buttons/levers"],
+            am: ["በደንብ ይወጣል", "ትላልቅ መቁጠሪያዎችን በአንድ ላይ ያገጣጥማል", "ማን? ምን? የት? የሚሉ ጥያቄዎችን ይጠይቃል", "ለጓደኞቹ ፍቅር ያሳያል", "ቁልፍ ያላቸውን አሻንጉሊቶች ይጫወታል"],
+            tips: { en: "Encourage pretend play. Start teaching names of colors and shapes.", am: "የመስሎ መጫወት (pretend play) እንዲጫወት ያበረታቱ። ቀለሞችንና ቅርጾችን ማስተማር ይጀምሩ።" }
+        },
+        {
+            age: 48,
+            en: ["Hops on one foot", "Draws a person with 3 body parts", "Tells stories", "Plays cooperatively", "Names colors and numbers"],
+            am: ["በአንድ እግር ይዘልላል", "3 የሰውነት ክፍሎች ያሉት ሰው ይስላል", "ተረቶችን ይተርካል", "ከሌሎች ጋር ተባብሮ ይጫወታል", "ቀለሞችንና ቁጥሮችን ይለያል"],
+            tips: { en: "Read books with more complex stories. Encourage outdoor play for coordination.", am: "ረዘም ያሉ ተረቶችን ያንብቡላቸው። ለእንቅስቃሴ ቅንጅት ሜዳ ላይ እንዲጫወቱ ያድርጉ።" }
+        }
+    ];
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('en-btn').classList.toggle('active', lang === 'en');
+        document.getElementById('am-btn').classList.toggle('active', lang === 'am');
+        
+        document.getElementById('app-title').innerText = uiText[lang].title;
+        document.getElementById('app-subtitle').innerText = uiText[lang].subtitle;
+        document.getElementById('input-prompt').innerText = uiText[lang].prompt;
+        document.getElementById('btn-text').innerText = uiText[lang].btn;
+        document.getElementById('result-title').innerText = uiText[lang].res;
+        
+        if(document.getElementById('results').style.display === 'block') showMilestones();
+    }
+
+    function showMilestones() {
+        const age = parseInt(document.getElementById('ageInput').value);
+        if (isNaN(age) || age < 0 || age > 59) {
+            alert(currentLang === 'en' ? "Please enter age between 0-59" : "እባክዎን ከ 0-59 መካከል ያስገቡ");
+            return;
+        }
+
+        // Find the closest milestone age without going over
+        let selectedData = milestoneData[0];
+        for (let data of milestoneData) {
+            if (age >= data.age) {
+                selectedData = data;
+            }
+        }
+
+        document.getElementById('age-display').innerText = uiText[currentLang].ageText + age + uiText[currentLang].months;
+
+        const content = document.getElementById('milestone-content');
+        content.innerHTML = '';
+        
+        uiText[currentLang].domains.forEach((domain, index) => {
+            content.innerHTML += `
+                <div class="domain-card">
+                    <span class="domain-name">${domain}</span>
+                    <div>${selectedData[currentLang][index]}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('counseling-content').innerHTML = `
+            <h3>${uiText[currentLang].tips}</h3>
+            <p>${selectedData.tips[currentLang]}</p>
+        `;
+
+        document.getElementById('results').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+
+</body>
+</html>
